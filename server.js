@@ -26,6 +26,15 @@ const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemi
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from current directory
+const path = require('path');
+app.use(express.static(path.join(__dirname)));
+
+// Serve index.html at root route
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // Health check endpoint
 app.get('/ping', (req, res) => {
     res.json({ message: 'pong' });
