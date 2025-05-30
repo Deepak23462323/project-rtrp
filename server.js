@@ -19,6 +19,9 @@ if (!process.env.GEMINI_API_KEY) {
     process.exit(1);
 }
 
+// Constants
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent';
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -34,35 +37,105 @@ app.post('/api/gemini', async (req, res, next) => {
         const { prompt } = req.body;
 
         if (!prompt) {
-            return res.status(400).json({ error: 'Prompt is required' });
+            return res.status(400).json({ 
+                error: 'Missing prompt',
+                message: 'Please provide a prompt for the AI to respond to.'
+            });
         }
 
-        const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
-            {
+        if (typeof prompt !== 'string' || prompt.trim().length === 0) {
+            return res.status(400).json({ 
+                error: 'Invalid prompt',
+                message: 'The prompt must be a non-empty text string.'
+            });
+        }
+
+        // Make request to Gemini API
+        const response = await axios({
+            method: 'post',
+            url: `${GEMINI_API_URL}?key=${process.env.GEMINI_API_KEY}`,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: {
                 contents: [{
                     parts: [{
                         text: prompt
                     }]
-                }]
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json'
+                }],
+                generationConfig: {
+                    temperature: 0.7,
+                    topK: 40,
+                    topP: 0.95,
+                    maxOutputTokens: 1024,
                 }
-            }
-        );
+            },
+            timeout: 10000 // 10 second timeout
+        });
 
-        // Extract the generated text from the response
-        const generatedText = response.data.candidates[0].content.parts[0].text;
-        res.json({ response: generatedText });
+        // Extract only the generated text from the response
+        if (response.data.candidates && response.data.candidates[0]?.content?.parts?.[0]?.text) {
+            const generatedText = response.data.candidates[0].content.parts[0].text;
+            res.json({ response: generatedText });
+        } else {
+            throw new Error('Invalid response format from Gemini API');
+        }
 
     } catch (error) {
-        console.error('Gemini API Error:', error.response?.data || error.message);
-        if (error.response?.data) {
-            res.status(error.response.status).json({ error: error.response.data });
+        // Log the full error for debugging
+        console.error('Gemini API Error:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Handle different types of errors with user-friendly messages
+        if (error.code === 'ECONNABORTED') {
+            // Timeout error
+            res.status(504).json({
+                error: 'Request timeout',
+                message: 'The AI is taking too long to respond. Please try again.'
+            });
+        } else if (error.response) {
+            // API responded with an error
+            const status = error.response.status;
+            let errorMessage = 'Something went wrong. Please try again.';
+
+            switch (status) {
+                case 400:
+                    errorMessage = 'Invalid request format. Please check your input and try again.';
+                    break;
+                case 401:
+                case 403:
+                    errorMessage = 'Authentication error. Please contact support.';
+                    break;
+                case 429:
+                    errorMessage = 'Too many requests. Please wait a moment and try again.';
+                    break;
+                case 500:
+                case 502:
+                case 503:
+                    errorMessage = 'AI service is temporarily unavailable. Please try again in a few minutes.';
+                    break;
+            }
+
+            res.status(status).json({
+                error: 'AI Response Error',
+                message: errorMessage
+            });
+        } else if (error.request) {
+            // No response received
+            res.status(503).json({
+                error: 'Service Unavailable',
+                message: 'Unable to reach the AI service. Please try again in a few moments.'
+            });
         } else {
-            next(error);
+            // Something else went wrong
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: 'Something went wrong. Please try again.'
+            });
         }
     }
 });
