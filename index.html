@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -632,6 +633,269 @@
                 font-size: 1.5rem;
             }
         }
+
+        .input-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background-color: #40414F;
+            border-radius: 24px;
+            padding: 8px 16px;
+            border: 1px solid #4B5563;
+        }
+
+        .dark .input-container {
+            background-color: #40414F;
+            border-color: #4B5563;
+        }
+
+        .light .input-container {
+            background-color: #FFFFFF;
+            border-color: #E5E7EB;
+        }
+
+        #userInput {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: inherit;
+            font-size: 16px;
+            padding: 8px 0;
+            resize: none;
+            min-height: 24px;
+            max-height: 200px;
+        }
+
+        .dark #userInput {
+            color: #ECECF1;
+        }
+
+        .light #userInput {
+            color: #1F2937;
+        }
+
+        .voice-btn, .stop-speaking-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .dark .voice-btn, .dark .stop-speaking-btn {
+            color: #ECECF1;
+        }
+
+        .light .voice-btn, .light .stop-speaking-btn {
+            color: #1F2937;
+        }
+
+        .voice-btn:hover, .stop-speaking-btn:hover {
+            background: rgba(25, 195, 125, 0.1);
+            color: #19C37D;
+        }
+
+        .voice-btn.recording {
+            color: #dc2626;
+            animation: pulse 1.5s infinite;
+        }
+
+        .stop-speaking-btn {
+            display: none; /* Hidden by default */
+            color: #dc2626;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stop-speaking-btn:hover {
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .stop-speaking-btn.visible {
+            display: flex;
+        }
+
+        .send-btn {
+            background: none;
+            border: none;
+            color: #19C37D;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .send-btn:hover {
+            background: rgba(25, 195, 125, 0.1);
+        }
+
+        .send-btn:disabled {
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .dark .send-btn:disabled {
+            color: #4B5563;
+        }
+
+        .light .send-btn:disabled {
+            color: #9CA3AF;
+        }
+
+        /* Add speaking animation styles */
+        @keyframes speaking {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .speaking {
+            animation: speaking 1s infinite;
+            color: #19C37D;
+        }
+
+        .speaking-indicator {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(25, 195, 125, 0.1);
+            color: #19C37D;
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 1000;
+        }
+
+        .speaking-indicator.visible {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .speaking-indicator .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #19C37D;
+            border-radius: 50%;
+            animation: speaking 1s infinite;
+        }
+
+        .speaking-indicator .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .speaking-indicator .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* Message styles */
+        .message {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 12px;
+            max-width: 80%;
+            position: relative;
+        }
+
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-message {
+            background-color: #f5f5f5;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .dark .user-message {
+            background-color: #1a237e;
+            color: white;
+        }
+
+        .dark .ai-message {
+            background-color: #424242;
+            color: white;
+        }
+
+        /* Message action buttons */
+        .message-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .message:hover .message-actions {
+            opacity: 1;
+        }
+
+        .message-action-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            color: #666;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .message-action-btn:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            color: #000;
+        }
+
+        .dark .message-action-btn {
+            color: #aaa;
+        }
+
+        .dark .message-action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .dark .toast {
+            background-color: #666;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -667,6 +931,9 @@
                 <div class="flex-1 overflow-y-auto p-4">
                     <div class="sidebar-section">
                         <div class="sidebar-section-title">Recent Chats</div>
+                        <button id="clearAllChats" class="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200 mb-2">
+                            <i class="fas fa-trash"></i> Clear All Chats
+                        </button>
                         <div id="historyPanel" class="space-y-2">
                             <!-- History items will be added here -->
                         </div>
@@ -687,22 +954,35 @@
 
             <!-- Input Area -->
             <div class="border-t input-area p-4">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="flex-1">
+                        <label class="text-sm text-gray-600 dark:text-gray-400">Temperature</label>
+                        <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7" 
+                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                            <span>More Focused</span>
+                            <span>More Creative</span>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-sm text-gray-600 dark:text-gray-400">Response Length</label>
+                        <select id="responseLength" class="w-full p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600">
+                            <option value="short" selected>Short</option>
+                            <option value="medium">Medium</option>
+                            <option value="long">Long</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="input-container">
-                    <textarea 
-                        id="userPrompt" 
-                        class="input-field"
-                        placeholder="Message AI Assistant..."
-                        rows="1"
-                        onInput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"
-                    ></textarea>
-                    <button 
-                        id="sendButton"
-                        class="send-button"
-                        disabled
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                        </svg>
+                    <textarea id="userInput" placeholder="Type your message here..." rows="1"></textarea>
+                    <button id="voiceInputBtn" class="voice-btn" title="Voice Input">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button id="stopSpeakingBtn" class="stop-speaking-btn" title="Stop Speaking">
+                        <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button id="sendBtn" class="send-btn" title="Send Message">
+                        <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
                 <div class="mt-2 flex justify-center">
@@ -713,6 +993,17 @@
             </div>
         </div>
     </div>
+
+    <!-- Add speaking indicator elements -->
+    <div id="speakingIndicator" class="speaking-indicator">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <span>AI is speaking...</span>
+    </div>
+
+    <!-- Add toast notification -->
+    <div id="toast" class="toast"></div>
 
     <script>
         // Add mobile menu functionality
@@ -773,8 +1064,8 @@
         let conversationHistory = [];
         let currentConversation = null;
         const chatContainer = document.getElementById('chatContainer');
-        const userPrompt = document.getElementById('userPrompt');
-        const sendButton = document.getElementById('sendButton');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
 
         // New Chat Button Functionality
         newChatButton.addEventListener('click', () => {
@@ -793,9 +1084,9 @@
             `;
             
             // Clear the input field
-            userPrompt.value = '';
-            userPrompt.style.height = '56px';
-            sendButton.disabled = true;
+            userInput.value = '';
+            userInput.style.height = '56px';
+            sendBtn.disabled = true;
             
             // Start new conversation
             currentConversation = {
@@ -824,27 +1115,37 @@
         }
 
         // Enable/disable send button based on input
-        userPrompt.addEventListener('input', () => {
-            sendButton.disabled = !userPrompt.value.trim();
+        userInput.addEventListener('input', () => {
+            sendBtn.disabled = !userInput.value.trim();
             // Auto-resize textarea
-            userPrompt.style.height = 'auto';
-            userPrompt.style.height = (userPrompt.scrollHeight) + 'px';
+            userInput.style.height = 'auto';
+            userInput.style.height = (userInput.scrollHeight) + 'px';
         });
 
         // Handle enter key
-        userPrompt.addEventListener('keydown', (e) => {
+        userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                if (!sendButton.disabled) {
-                    sendButton.click();
+                if (!sendBtn.disabled) {
+                    sendBtn.click();
                 }
             }
         });
 
         // Send button click handler
-        sendButton.addEventListener('click', async () => {
-            const prompt = userPrompt.value.trim();
+        sendBtn.addEventListener('click', async () => {
+            const prompt = userInput.value.trim();
             if (!prompt) return;
+
+            // Store the current wasVoiceInput state before any potential changes
+            const shouldSpeak = wasVoiceInput;
+            console.log('Current wasVoiceInput state:', wasVoiceInput);
+
+            // Only reset wasVoiceInput if we're not currently recording and this wasn't triggered by voice input
+            if (!isRecording && !wasVoiceInput) {
+                wasVoiceInput = false;
+                console.log('Text input detected, setting wasVoiceInput to false');
+            }
 
             // Remove welcome message if it exists
             const welcomeContainer = chatContainer.querySelector('.welcome-container');
@@ -863,9 +1164,9 @@
 
             // Add user message to chat
             addMessageToChat(prompt, true);
-            userPrompt.value = '';
-            userPrompt.style.height = '56px';
-            sendButton.disabled = true;
+            userInput.value = '';
+            userInput.style.height = '56px';
+            sendBtn.disabled = true;
 
             // Add message to current conversation
             currentConversation.messages.push({
@@ -882,29 +1183,45 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ prompt })
+                    body: JSON.stringify({ 
+                        prompt,
+                        temperature: parseFloat(temperature.value),
+                        responseLength: responseLength.value
+                    })
                 });
 
                 const data = await response.json();
                 removeLoadingIndicator();
 
                 if (response.ok) {
-                    // Add AI response to chat
                     addMessageToChat(data.response);
+                    console.log('Response received, shouldSpeak:', shouldSpeak);
+                    if (shouldSpeak) {
+                        speakResponse(data.response);
+                    }
                     
-                    // Add message to current conversation
                     currentConversation.messages.push({
                         role: 'assistant',
                         content: data.response
                     });
                 } else {
-                    // Add error message to chat
-                    addMessageToChat(`Error: ${data.message || 'Something went wrong. Please try again.'}`);
+                    const errorMessage = `Error: ${data.message || 'Something went wrong. Please try again.'}`;
+                    addMessageToChat(errorMessage);
+                    if (shouldSpeak) {
+                        speakResponse(errorMessage);
+                    }
                 }
             } catch (error) {
                 removeLoadingIndicator();
-                addMessageToChat('Error: Unable to connect to the server. Please try again.');
+                const errorMessage = 'Error: Unable to connect to the server. Please try again.';
+                addMessageToChat(errorMessage);
+                if (shouldSpeak) {
+                    speakResponse(errorMessage);
+                }
             }
+
+            // Reset wasVoiceInput after processing
+            wasVoiceInput = false;
         });
 
         function addMessageToChat(message, isUser = false) {
@@ -991,7 +1308,7 @@
             currentConversation = conversation;
             
             // Focus input
-            userPrompt.focus();
+            userInput.focus();
         }
 
         // Add API test functionality
@@ -1029,6 +1346,305 @@
         window.addEventListener('load', () => {
             setTimeout(testApiConnection, 1000); // Wait 1 second after page load
         });
+
+        // Voice Input Functionality
+        const voiceInputBtn = document.getElementById('voiceInputBtn');
+        const stopSpeakingBtn = document.getElementById('stopSpeakingBtn');
+        let isRecording = false;
+        let recognition = null;
+        let silenceTimer = null;
+        let wasVoiceInput = false;
+        const SILENCE_TIMEOUT = 2000;
+
+        // Text-to-Speech Functionality
+        const speakResponse = (text) => {
+            console.log('Attempting to speak:', text, 'wasVoiceInput:', wasVoiceInput);
+            if (!wasVoiceInput) return;
+            
+            // Ensure speech synthesis is available
+            if (!window.speechSynthesis) {
+                console.error('Speech synthesis not supported');
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            // Show stop button and hide voice button
+            const stopBtn = document.getElementById('stopSpeakingBtn');
+            const voiceBtn = document.getElementById('voiceInputBtn');
+            stopBtn.classList.add('visible');
+            voiceBtn.style.display = 'none';
+            
+            utterance.onend = () => {
+                console.log('Speech ended');
+                stopBtn.classList.remove('visible');
+                voiceBtn.style.display = 'flex';
+            };
+
+            utterance.onerror = (event) => {
+                console.error('Speech synthesis error:', event);
+                stopBtn.classList.remove('visible');
+                voiceBtn.style.display = 'flex';
+            };
+            
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+            
+            // Speak the response
+            window.speechSynthesis.speak(utterance);
+        };
+
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = (event) => {
+                if (silenceTimer) {
+                    clearTimeout(silenceTimer);
+                }
+
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+                userInput.dispatchEvent(new Event('input'));
+
+                if (event.results[0].isFinal) {
+                    recognition.stop();
+                    isRecording = false;
+                    voiceInputBtn.classList.remove('recording');
+                    wasVoiceInput = true; // Set flag for voice input
+                    console.log('Voice input detected, setting wasVoiceInput to true');
+                    sendBtn.click();
+                }
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                voiceInputBtn.classList.remove('recording');
+                if (silenceTimer) {
+                    clearTimeout(silenceTimer);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                isRecording = false;
+                voiceInputBtn.classList.remove('recording');
+                if (silenceTimer) {
+                    clearTimeout(silenceTimer);
+                }
+            };
+
+            recognition.onaudiostart = () => {
+                silenceTimer = setTimeout(() => {
+                    if (isRecording) {
+                        recognition.stop();
+                        if (userInput.value.trim()) {
+                            wasVoiceInput = true; // Set flag for voice input
+                            console.log('Silence detected, setting wasVoiceInput to true');
+                            sendBtn.click();
+                        }
+                    }
+                }, SILENCE_TIMEOUT);
+            };
+
+            recognition.onspeechstart = () => {
+                if (silenceTimer) {
+                    clearTimeout(silenceTimer);
+                }
+            };
+        }
+
+        voiceInputBtn.addEventListener('click', () => {
+            if (!recognition) {
+                alert('Speech recognition is not supported in your browser.');
+                return;
+            }
+
+            if (!isRecording) {
+                userInput.value = '';
+                recognition.start();
+                isRecording = true;
+                voiceInputBtn.classList.add('recording');
+                wasVoiceInput = true; // Set flag for voice input
+                console.log('Starting voice input, setting wasVoiceInput to true');
+            } else {
+                recognition.stop();
+                isRecording = false;
+                voiceInputBtn.classList.remove('recording');
+                if (userInput.value.trim()) {
+                    wasVoiceInput = true; // Set flag for voice input
+                    console.log('Manual stop, setting wasVoiceInput to true');
+                    sendBtn.click();
+                }
+            }
+        });
+
+        // Clear All Chats Functionality
+        const clearAllChats = document.getElementById('clearAllChats');
+        clearAllChats.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all chat history? This action cannot be undone.')) {
+                conversationHistory = [];
+                updateHistoryPanel();
+                // Clear current chat
+                chatContainer.innerHTML = `
+                    <div class="welcome-container">
+                        <h1 class="welcome-title">Welcome to AI Chat</h1>
+                        <p class="welcome-subtitle">Your intelligent AI assistant</p>
+                    </div>
+                `;
+                currentConversation = null;
+                userInput.value = '';
+                userInput.style.height = '56px';
+                sendBtn.disabled = true;
+            }
+        });
+
+        // Update the stop speaking button handler
+        document.getElementById('stopSpeakingBtn').addEventListener('click', () => {
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+                const stopBtn = document.getElementById('stopSpeakingBtn');
+                const voiceBtn = document.getElementById('voiceInputBtn');
+                stopBtn.classList.remove('visible');
+                voiceBtn.style.display = 'flex';
+            }
+        });
+
+        // Add a function to handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Stop speaking when page is hidden
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                    const stopBtn = document.getElementById('stopSpeakingBtn');
+                    const voiceBtn = document.getElementById('voiceInputBtn');
+                    stopBtn.classList.remove('visible');
+                    voiceBtn.style.display = 'flex';
+                }
+            }
+        });
+
+        // Function to show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2000);
+        }
+
+        // Function to create message HTML
+        function createMessageHTML(content, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = content;
+            
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'message-actions';
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'message-action-btn';
+            copyBtn.innerHTML = '📋';
+            copyBtn.title = 'Copy';
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(content);
+                showToast('Copied to clipboard!');
+            };
+            
+            const editBtn = document.createElement('button');
+            editBtn.className = 'message-action-btn';
+            editBtn.innerHTML = '✏️';
+            editBtn.title = 'Edit';
+            editBtn.onclick = () => {
+                if (isUser) {
+                    promptInput.value = content;
+                    promptInput.focus();
+                }
+            };
+            
+            actionsDiv.appendChild(copyBtn);
+            if (isUser) {
+                actionsDiv.appendChild(editBtn);
+            }
+            
+            messageDiv.appendChild(messageContent);
+            messageDiv.appendChild(actionsDiv);
+            
+            return messageDiv;
+        }
+
+        // Update the sendMessage function to use the new message creation
+        async function sendMessage() {
+            const prompt = promptInput.value.trim();
+            if (!prompt) return;
+
+            // Add user message
+            const userMessageDiv = createMessageHTML(prompt, true);
+            chatMessages.appendChild(userMessageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Clear input
+            promptInput.value = '';
+
+            // Show loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message ai-message';
+            loadingDiv.innerHTML = '<div class="loading">Thinking...</div>';
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const response = await fetch('/api/gemini', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt,
+                        temperature: parseFloat(temperatureSlider.value),
+                        responseLength: responseLengthSelect.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to get response');
+                }
+
+                // Remove loading indicator
+                chatMessages.removeChild(loadingDiv);
+
+                // Add AI response
+                const aiMessageDiv = createMessageHTML(data.response, false);
+                chatMessages.appendChild(aiMessageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Speak response if it was voice input
+                if (wasVoiceInput) {
+                    speakResponse(data.response);
+                }
+
+            } catch (error) {
+                // Remove loading indicator
+                chatMessages.removeChild(loadingDiv);
+
+                // Show error message
+                const errorDiv = createMessageHTML(`Error: ${error.message}`, false);
+                chatMessages.appendChild(errorDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
     </script>
 </body>
 </html> 

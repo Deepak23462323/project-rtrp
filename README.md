@@ -1,13 +1,27 @@
 # AI Chat Interface
 
-A web application that uses the Gemini API to generate AI responses.
+A modern, responsive chat interface powered by Google's Gemini AI API. Features include voice input/output, temperature control, response length settings, and a beautiful dark/light theme.
+
+## Features
+
+- 🤖 AI-powered chat using Google's Gemini API
+- 🎤 Voice input with automatic silence detection
+- 🔊 Text-to-speech for AI responses
+- 🌓 Dark/Light theme support
+- 📱 Responsive design for all devices
+- 📝 Markdown support in messages
+- 📋 Copy and edit message functionality
+- ⚡ Real-time typing indicators
+- 💾 Chat history management
+- 🎛️ Temperature control for response creativity
+- 📏 Adjustable response length (short/medium/long)
 
 ## Setup
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/Deepak23462323/project-rtrp.git
-cd project-rtrp
+git clone https://github.com/yourusername/ai-chat-interface.git
+cd ai-chat-interface
 ```
 
 2. Install dependencies:
@@ -15,22 +29,35 @@ cd project-rtrp
 npm install
 ```
 
-3. Create a `.env` file in the root directory with your Gemini API key:
+3. Create a `.env` file in the root directory and add your Gemini API key:
 ```
 GEMINI_API_KEY=your_api_key_here
 ```
 
-4. Start the development server:
+4. Start the server:
 ```bash
-npm run dev
+node server.js
 ```
 
-## Features
+5. Open `http://localhost:3000` in your browser
 
-- Web interface for interacting with AI
-- Example prompts dropdown
-- Conversation history panel
-- Real-time AI responses using Gemini API
+## Technologies Used
+
+- Node.js
+- Express.js
+- Google Gemini AI API
+- Web Speech API
+- Tailwind CSS
+- Marked.js (for Markdown)
+- DOMPurify (for security)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## API Endpoints
 
