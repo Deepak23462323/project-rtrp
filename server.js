@@ -37,7 +37,7 @@ app.get('/ping', (req, res) => {
 // Gemini API endpoint
 app.post('/api/gemini', async (req, res, next) => {
     try {
-        const { prompt } = req.body;
+        const { prompt, temperature = 0.7, responseLength = 'medium' } = req.body;
 
         if (!prompt) {
             return res.status(400).json({ 
@@ -53,27 +53,65 @@ app.post('/api/gemini', async (req, res, next) => {
             });
         }
 
+        // Set max tokens based on response length
+        let maxTokens;
+        switch (responseLength) {
+            case 'short':
+                maxTokens = 30;
+                break;
+            case 'long':
+                maxTokens = 500;
+                break;
+            case 'medium':
+            default:
+                maxTokens = 250;
+        }
+
         // Prepare request payload for Gemini API
         const requestData = {
             contents: [{
                 parts: [{
                     text: prompt
                 }]
-            }]
+            }],
+            generationConfig: {
+                temperature: temperature,
+                maxOutputTokens: maxTokens,
+                topP: 0.5,
+                topK: 20
+            }
         };
 
-        console.log('Sending request to Gemini API');
+        console.log('Sending request to Gemini API with config:', {
+            temperature,
+            maxTokens,
+            responseLength
+        });
 
         // Make request to Gemini API using direct API key
-        const response = await axios({
-            method: 'post',
-            url: `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: requestData,
-            timeout: 10000 // 10 second timeout
-        });
+        const makeRequest = async (retryCount = 0) => {
+            try {
+                const response = await axios({
+                    method: 'post',
+                    url: `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: requestData,
+                    timeout: 10000 // 10 second timeout
+                });
+                return response;
+            } catch (error) {
+                if (error.response?.status === 503 && retryCount < 3) {
+                    // Wait for 2 seconds before retrying
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    return makeRequest(retryCount + 1);
+                }
+                throw error;
+            }
+        };
+
+        const response = await makeRequest();
 
         // Extract only the generated text from the response
         if (response.data.candidates && response.data.candidates[0]?.content?.parts?.[0]?.text) {
