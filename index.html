@@ -100,12 +100,12 @@
 
         .message-enter {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(20px) scale(0.98);
         }
         .message-enter-active {
             opacity: 1;
-            transform: translateY(0);
-            transition: opacity 300ms, transform 300ms;
+            transform: translateY(0) scale(1);
+            transition: opacity 0.3s, transform 0.3s;
         }
 
         .history-panel::-webkit-scrollbar {
@@ -820,25 +820,34 @@
         }
 
         .user-message {
-            background-color: #e3f2fd;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
+            background-color: #19C37D;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 8px;
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
+            border-bottom-left-radius: 18px;
+            margin-left: 20%;
+            margin-right: 0;
+            box-shadow: 0 2px 8px rgba(25,195,125,0.08);
         }
 
-        .ai-message {
-            background-color: #f5f5f5;
-            margin-right: auto;
-            border-bottom-left-radius: 4px;
+        .assistant-message {
+            background-color: #fff;
+            color: #222;
+            align-self: flex-start;
+            border-bottom-left-radius: 8px;
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
+            border-bottom-right-radius: 18px;
+            margin-right: 20%;
+            margin-left: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
 
-        .dark .user-message {
-            background-color: #1a237e;
-            color: white;
-        }
-
-        .dark .ai-message {
-            background-color: #424242;
-            color: white;
+        .dark .assistant-message {
+            background-color: #444654;
+            color: #ECECF1;
         }
 
         /* Message action buttons */
@@ -928,6 +937,14 @@
                         New Chat
                     </button>
                 </div>
+                <div class="px-4 pb-2">
+                    <label class="block text-xs text-gray-600 dark:text-gray-400 mb-1">Temperature</label>
+                    <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <span>More Focused</span>
+                        <span>More Creative</span>
+                    </div>
+                </div>
                 <div class="flex-1 overflow-y-auto p-4">
                     <div class="sidebar-section">
                         <div class="sidebar-section-title">Recent Chats</div>
@@ -945,50 +962,25 @@
         <!-- Main Chat Area -->
         <div class="flex-1 flex flex-col h-screen main-content">
             <!-- Chat Messages Container -->
-            <div id="chatContainer" class="flex-1 overflow-y-auto chat-container p-4">
+            <div id="chatContainer" class="flex-1 overflow-y-auto chat-container p-4 flex items-center justify-center">
                 <!-- Welcome Message -->
-                <div class="welcome-container">
-                    <h1 class="welcome-title">Welcome to AI Chat</h1>
+                <div class="welcome-container flex items-center justify-center w-full h-full" style="min-height: 300px;">
+                    <h1 class="text-2xl md:text-3xl font-semibold text-center">What can I help with?</h1>
                 </div>
             </div>
 
             <!-- Input Area -->
             <div class="border-t input-area p-4">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="flex-1">
-                        <label class="text-sm text-gray-600 dark:text-gray-400">Temperature</label>
-                        <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7" 
-                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                            <span>More Focused</span>
-                            <span>More Creative</span>
-                        </div>
+                <div class="flex items-center gap-2 w-full max-w-3xl mx-auto">
+                    <div class="flex items-center gap-2 bg-[#40414F] dark:bg-[#40414F] light:bg-[#fff] rounded-2xl shadow-lg px-4 py-2 flex-1" style="border: 1px solid #4B5563;">
+                        <textarea id="userInput" class="input-field flex-1 bg-transparent border-none outline-none resize-none text-base py-2 px-2" placeholder="Type your message here..." rows="1" style="min-height: 32px; max-height: 120px;"></textarea>
+                        <button id="voiceInputBtn" class="voice-btn" title="Voice Input">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button id="sendBtn" class="send-btn ml-2" title="Send Message">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
                     </div>
-                    <div class="flex-1">
-                        <label class="text-sm text-gray-600 dark:text-gray-400">Response Length</label>
-                        <select id="responseLength" class="w-full p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600">
-                            <option value="short" selected>Short</option>
-                            <option value="medium">Medium</option>
-                            <option value="long">Long</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="input-container">
-                    <textarea id="userInput" placeholder="Type your message here..." rows="1"></textarea>
-                    <button id="voiceInputBtn" class="voice-btn" title="Voice Input">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <button id="stopSpeakingBtn" class="stop-speaking-btn" title="Stop Speaking">
-                        <i class="fas fa-volume-mute"></i>
-                    </button>
-                    <button id="sendBtn" class="send-btn" title="Send Message">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-                <div class="mt-2 flex justify-center">
-                    <button id="testApiButton" class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                        Test API Connection
-                    </button>
                 </div>
             </div>
         </div>
@@ -1077,9 +1069,8 @@
 
             // Clear the chat container and add welcome screen
             chatContainer.innerHTML = `
-                <div class="welcome-container">
-                    <h1 class="welcome-title">Welcome to AI Chat</h1>
-                    <p class="welcome-subtitle">Your intelligent AI assistant</p>
+                <div class="welcome-container flex items-center justify-center w-full h-full" style="min-height: 300px;">
+                    <h1 class="text-2xl md:text-3xl font-semibold text-center">What can I help with?</h1>
                 </div>
             `;
             
@@ -1226,26 +1217,12 @@
 
         function addMessageToChat(message, isUser = false) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `max-w-4xl mx-auto message-enter ${isUser ? 'user-message' : 'assistant-message'} mb-6`;
-            
-            const contentDiv = document.createElement('div');
-            contentDiv.className = `message-bubble p-6 rounded-lg`;
-            
-            // Add avatar for AI messages
-            if (!isUser) {
-                const avatarDiv = document.createElement('div');
-                avatarDiv.className = 'flex items-center gap-3 mb-4';
-                avatarDiv.innerHTML = `
-                    <div class="w-8 h-8 rounded-full bg-[#19C37D] flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                    <span class="text-sm font-medium">AI Assistant</span>
-                `;
-                contentDiv.prepend(avatarDiv);
-            }
-            
+            messageDiv.className = `message-enter ${isUser ? 'user-message' : 'assistant-message'} mb-4 px-4 py-3 max-w-[70%] flex flex-col`;
+            messageDiv.style.display = 'flex';
+            messageDiv.style.alignItems = isUser ? 'flex-end' : 'flex-start';
+            messageDiv.style.marginLeft = isUser ? 'auto' : '';
+            messageDiv.style.marginRight = isUser ? '' : 'auto';
+
             // Configure marked options
             marked.setOptions({
                 breaks: true,
@@ -1258,16 +1235,15 @@
             const sanitizedMessage = DOMPurify.sanitize(message);
             const renderedMessage = marked.parse(sanitizedMessage);
             const sanitizedHtml = DOMPurify.sanitize(renderedMessage);
-            
-            contentDiv.innerHTML += `<div class="text-sm leading-relaxed markdown-content">${sanitizedHtml}</div>`;
-            messageDiv.appendChild(contentDiv);
+
+            messageDiv.innerHTML = `<div class="text-sm leading-relaxed markdown-content">${sanitizedHtml}</div>`;
             chatContainer.appendChild(messageDiv);
-            
+
             // Trigger animation
             setTimeout(() => {
                 messageDiv.classList.add('message-enter-active');
             }, 10);
-            
+
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
@@ -1310,42 +1286,6 @@
             // Focus input
             userInput.focus();
         }
-
-        // Add API test functionality
-        const testApiButton = document.getElementById('testApiButton');
-
-        async function testApiConnection() {
-            try {
-                addLoadingIndicator();
-                const response = await fetch('/api/gemini', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ prompt: "Hello, this is a test message. Please respond with 'API is working!'" })
-                });
-
-                const data = await response.json();
-                removeLoadingIndicator();
-
-                if (response.ok) {
-                    addMessageToChat("✅ API Test Successful: " + data.response);
-                } else {
-                    addMessageToChat("❌ API Test Failed: " + (data.message || 'Unknown error'));
-                }
-            } catch (error) {
-                removeLoadingIndicator();
-                addMessageToChat("❌ API Test Failed: Unable to connect to the server");
-                console.error('API Test Error:', error);
-            }
-        }
-
-        testApiButton.addEventListener('click', testApiConnection);
-
-        // Test API connection on page load
-        window.addEventListener('load', () => {
-            setTimeout(testApiConnection, 1000); // Wait 1 second after page load
-        });
 
         // Voice Input Functionality
         const voiceInputBtn = document.getElementById('voiceInputBtn');
@@ -1493,9 +1433,8 @@
                 updateHistoryPanel();
                 // Clear current chat
                 chatContainer.innerHTML = `
-                    <div class="welcome-container">
-                        <h1 class="welcome-title">Welcome to AI Chat</h1>
-                        <p class="welcome-subtitle">Your intelligent AI assistant</p>
+                    <div class="welcome-container flex items-center justify-center w-full h-full" style="min-height: 300px;">
+                        <h1 class="text-2xl md:text-3xl font-semibold text-center">What can I help with?</h1>
                     </div>
                 `;
                 currentConversation = null;
@@ -1645,6 +1584,13 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         }
+
+        window.addEventListener('load', () => {
+            // Always set response length to short on page load
+            const responseLength = document.getElementById('responseLength');
+            if (responseLength) responseLength.value = 'short';
+            // ... any other load logic ...
+        });
     </script>
 </body>
 </html> 
