@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Chat Interface</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -396,9 +398,250 @@
         .light .code-block {
             background-color: rgba(0, 0, 0, 0.05);
         }
+
+        .markdown-content {
+            line-height: 1.6;
+        }
+
+        .markdown-content p {
+            margin-bottom: 1rem;
+        }
+
+        .markdown-content code {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875em;
+        }
+
+        .dark .markdown-content code {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .markdown-content pre {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .dark .markdown-content pre {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .markdown-content pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .markdown-content ul, .markdown-content ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .markdown-content li {
+            margin: 0.5rem 0;
+        }
+
+        .markdown-content blockquote {
+            border-left: 4px solid #19C37D;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #666;
+        }
+
+        .dark .markdown-content blockquote {
+            color: #999;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 0.25rem;
+        }
+
+        .dark .folder-item {
+            color: #ECECF1;
+        }
+
+        .light .folder-item {
+            color: #1F2937;
+        }
+
+        .folder-item:hover {
+            background-color: rgba(25, 195, 125, 0.1);
+        }
+
+        .folder-item.active {
+            background-color: #19C37D;
+            color: white;
+        }
+
+        .folder-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .folder-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .folder-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .folder-count {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+
+        .add-folder-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #19C37D;
+        }
+
+        .add-folder-button:hover {
+            background-color: rgba(25, 195, 125, 0.1);
+        }
+
+        .folder-dropdown {
+            position: absolute;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 50;
+            min-width: 200px;
+        }
+
+        .dark .folder-dropdown {
+            background-color: #2A2B32;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .folder-dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dark .folder-dropdown-item {
+            color: #ECECF1;
+        }
+
+        .light .folder-dropdown-item {
+            color: #1F2937;
+        }
+
+        .folder-dropdown-item:hover {
+            background-color: rgba(25, 195, 125, 0.1);
+        }
+
+        /* Mobile menu styles */
+        .mobile-menu-button {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 50;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .dark .mobile-menu-button {
+            background-color: #2A2B32;
+            color: #ECECF1;
+        }
+
+        .light .mobile-menu-button {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+
+        .mobile-menu-button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .mobile-menu-button {
+                display: block;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                bottom: 0;
+                width: 100%;
+                max-width: 300px;
+                transition: left 0.3s ease;
+                z-index: 40;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .message-bubble {
+                max-width: 90%;
+            }
+
+            .input-container {
+                padding: 0.5rem;
+            }
+
+            .input-field {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .send-button {
+                padding: 0.5rem;
+            }
+
+            .welcome-container {
+                padding: 1rem;
+            }
+
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuButton" class="mobile-menu-button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
     <!-- Theme Toggle Button -->
     <button id="themeToggle" class="theme-toggle">
         <svg id="sunIcon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -422,63 +665,82 @@
                     </button>
                 </div>
                 <div class="flex-1 overflow-y-auto p-4">
-                    <div id="historyPanel" class="space-y-2">
-                        <!-- History items will be added here -->
-                </div>
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">Recent Chats</div>
+                        <div id="historyPanel" class="space-y-2">
+                            <!-- History items will be added here -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Main Chat Area -->
-        <div class="flex-1 flex flex-col h-screen">
+        <div class="flex-1 flex flex-col h-screen main-content">
             <!-- Chat Messages Container -->
             <div id="chatContainer" class="flex-1 overflow-y-auto chat-container p-4">
                 <!-- Welcome Message -->
                 <div class="welcome-container">
                     <h1 class="welcome-title">Welcome to AI Chat</h1>
-                    <p class="welcome-subtitle">Your intelligent AI assistant</p>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h3 class="feature-title">💡 Smart Responses</h3>
-                            <p class="feature-description">Get intelligent and contextually relevant responses to your questions.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3 class="feature-title">🎨 Theme Support</h3>
-                            <p class="feature-description">Choose between light and dark themes for comfortable viewing.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3 class="feature-title">📝 Chat History</h3>
-                            <p class="feature-description">Access your previous conversations and continue where you left off.</p>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             <!-- Input Area -->
             <div class="border-t input-area p-4">
                 <div class="input-container">
-                        <textarea 
-                            id="userPrompt" 
+                    <textarea 
+                        id="userPrompt" 
                         class="input-field"
-                            placeholder="Message AI Assistant..."
-                            rows="1"
-                            onInput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"
-                        ></textarea>
-                        <button 
-                            id="sendButton"
+                        placeholder="Message AI Assistant..."
+                        rows="1"
+                        onInput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"
+                    ></textarea>
+                    <button 
+                        id="sendButton"
                         class="send-button"
-                            disabled
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                            </svg>
-                        </button>
+                        disabled
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="mt-2 flex justify-center">
+                    <button id="testApiButton" class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        Test API Connection
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Add mobile menu functionality
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+
+        mobileMenuButton.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !mobileMenuButton.contains(e.target) && 
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+            }
+        });
+
         // Theme Toggle Functionality
         const themeToggle = document.getElementById('themeToggle');
         const sunIcon = document.getElementById('sunIcon');
@@ -514,80 +776,6 @@
         const userPrompt = document.getElementById('userPrompt');
         const sendButton = document.getElementById('sendButton');
 
-        // Enable/disable send button based on input
-        userPrompt.addEventListener('input', () => {
-            sendButton.disabled = !userPrompt.value.trim();
-            // Auto-resize textarea
-            userPrompt.style.height = 'auto';
-            userPrompt.style.height = (userPrompt.scrollHeight) + 'px';
-        });
-
-        // Handle enter key
-        userPrompt.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (!sendButton.disabled) {
-                    sendButton.click();
-                }
-            }
-        });
-
-        function addMessageToChat(message, isUser = false) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `max-w-4xl mx-auto message-enter ${isUser ? 'user-message' : 'assistant-message'} mb-6`;
-            
-            const contentDiv = document.createElement('div');
-            contentDiv.className = `message-bubble p-6 rounded-lg`;
-            
-            // Add avatar for AI messages
-            if (!isUser) {
-                const avatarDiv = document.createElement('div');
-                avatarDiv.className = 'flex items-center gap-3 mb-4';
-                avatarDiv.innerHTML = `
-                    <div class="w-8 h-8 rounded-full bg-[#19C37D] flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                    <span class="text-sm font-medium">AI Assistant</span>
-                `;
-                contentDiv.prepend(avatarDiv);
-            }
-            
-            contentDiv.innerHTML += `<div class="text-sm leading-relaxed">${message}</div>`;
-            messageDiv.appendChild(contentDiv);
-            chatContainer.appendChild(messageDiv);
-            
-            // Trigger animation
-            setTimeout(() => {
-                messageDiv.classList.add('message-enter-active');
-            }, 10);
-            
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function addLoadingIndicator() {
-            const loadingDiv = document.createElement('div');
-            loadingDiv.id = 'loadingIndicator';
-            loadingDiv.className = 'max-w-4xl mx-auto mb-6';
-            loadingDiv.innerHTML = `
-                <div class="typing-indicator">
-                    <span class="text-2xl text-[#19C37D] animate-dot-1">•</span>
-                    <span class="text-2xl text-[#19C37D] animate-dot-2">•</span>
-                    <span class="text-2xl text-[#19C37D] animate-dot-3">•</span>
-                </div>
-            `;
-            chatContainer.appendChild(loadingDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function removeLoadingIndicator() {
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            if (loadingIndicator) {
-                loadingIndicator.remove();
-            }
-        }
-
         // New Chat Button Functionality
         newChatButton.addEventListener('click', () => {
             // If there's an active conversation, save it to history
@@ -601,20 +789,6 @@
                 <div class="welcome-container">
                     <h1 class="welcome-title">Welcome to AI Chat</h1>
                     <p class="welcome-subtitle">Your intelligent AI assistant</p>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h3 class="feature-title">💡 Smart Responses</h3>
-                            <p class="feature-description">Get intelligent and contextually relevant responses to your questions.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3 class="feature-title">🎨 Theme Support</h3>
-                            <p class="feature-description">Choose between light and dark themes for comfortable viewing.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3 class="feature-title">📝 Chat History</h3>
-                            <p class="feature-description">Access your previous conversations and continue where you left off.</p>
-                        </div>
-                    </div>
                 </div>
             `;
             
@@ -634,6 +808,40 @@
             chatContainer.scrollTop = 0;
         });
 
+        function updateHistoryPanel() {
+            const historyPanel = document.getElementById('historyPanel');
+            historyPanel.innerHTML = conversationHistory.map((conversation, index) => `
+                <div class="history-item" onclick="restoreChat(${index})">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    <div class="history-item-content">
+                        <div class="history-item-title">${conversation.messages[0].content}</div>
+                        <div class="history-item-time">${conversation.timestamp.toLocaleTimeString()}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Enable/disable send button based on input
+        userPrompt.addEventListener('input', () => {
+            sendButton.disabled = !userPrompt.value.trim();
+            // Auto-resize textarea
+            userPrompt.style.height = 'auto';
+            userPrompt.style.height = (userPrompt.scrollHeight) + 'px';
+        });
+
+        // Handle enter key
+        userPrompt.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (!sendButton.disabled) {
+                    sendButton.click();
+                }
+            }
+        });
+
+        // Send button click handler
         sendButton.addEventListener('click', async () => {
             const prompt = userPrompt.value.trim();
             if (!prompt) return;
@@ -699,19 +907,73 @@
             }
         });
 
-        function updateHistoryPanel() {
-            const historyPanel = document.getElementById('historyPanel');
-            historyPanel.innerHTML = conversationHistory.map((conversation, index) => `
-                <div class="history-item" onclick="restoreChat(${index})">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                    </svg>
-                    <div class="history-item-content">
-                        <div class="history-item-title">${conversation.messages[0].content}</div>
-                        <div class="history-item-time">${conversation.timestamp.toLocaleTimeString()}</div>
+        function addMessageToChat(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `max-w-4xl mx-auto message-enter ${isUser ? 'user-message' : 'assistant-message'} mb-6`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = `message-bubble p-6 rounded-lg`;
+            
+            // Add avatar for AI messages
+            if (!isUser) {
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'flex items-center gap-3 mb-4';
+                avatarDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-[#19C37D] flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
                     </div>
+                    <span class="text-sm font-medium">AI Assistant</span>
+                `;
+                contentDiv.prepend(avatarDiv);
+            }
+            
+            // Configure marked options
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                mangle: false
+            });
+
+            // Sanitize and render markdown
+            const sanitizedMessage = DOMPurify.sanitize(message);
+            const renderedMessage = marked.parse(sanitizedMessage);
+            const sanitizedHtml = DOMPurify.sanitize(renderedMessage);
+            
+            contentDiv.innerHTML += `<div class="text-sm leading-relaxed markdown-content">${sanitizedHtml}</div>`;
+            messageDiv.appendChild(contentDiv);
+            chatContainer.appendChild(messageDiv);
+            
+            // Trigger animation
+            setTimeout(() => {
+                messageDiv.classList.add('message-enter-active');
+            }, 10);
+            
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loadingIndicator';
+            loadingDiv.className = 'max-w-4xl mx-auto mb-6';
+            loadingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <span class="text-2xl text-[#19C37D] animate-dot-1">•</span>
+                    <span class="text-2xl text-[#19C37D] animate-dot-2">•</span>
+                    <span class="text-2xl text-[#19C37D] animate-dot-3">•</span>
                 </div>
-            `).join('');
+            `;
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function removeLoadingIndicator() {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) {
+                loadingIndicator.remove();
+            }
         }
 
         function restoreChat(index) {
@@ -731,6 +993,42 @@
             // Focus input
             userPrompt.focus();
         }
+
+        // Add API test functionality
+        const testApiButton = document.getElementById('testApiButton');
+
+        async function testApiConnection() {
+            try {
+                addLoadingIndicator();
+                const response = await fetch('/api/gemini', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt: "Hello, this is a test message. Please respond with 'API is working!'" })
+                });
+
+                const data = await response.json();
+                removeLoadingIndicator();
+
+                if (response.ok) {
+                    addMessageToChat("✅ API Test Successful: " + data.response);
+                } else {
+                    addMessageToChat("❌ API Test Failed: " + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                removeLoadingIndicator();
+                addMessageToChat("❌ API Test Failed: Unable to connect to the server");
+                console.error('API Test Error:', error);
+            }
+        }
+
+        testApiButton.addEventListener('click', testApiConnection);
+
+        // Test API connection on page load
+        window.addEventListener('load', () => {
+            setTimeout(testApiConnection, 1000); // Wait 1 second after page load
+        });
     </script>
 </body>
 </html> 
