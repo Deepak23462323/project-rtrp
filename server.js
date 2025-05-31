@@ -59,6 +59,23 @@ app.post('/api/gemini', async (req, res, next) => {
             });
         }
 
+        // Prepare request payload for Gemini API
+        const requestData = {
+            contents: [{
+                parts: [{
+                    text: prompt
+                }]
+            }],
+            generationConfig: {
+                temperature: 0.7,
+                topK: 40,
+                topP: 0.95,
+                maxOutputTokens: 1024,
+            }
+        };
+
+        console.log('Sending request to Gemini API:', JSON.stringify(requestData, null, 2));
+
         // Make request to Gemini API
         const response = await axios({
             method: 'post',
@@ -66,19 +83,7 @@ app.post('/api/gemini', async (req, res, next) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            data: {
-                contents: [{
-                    parts: [{
-                        text: prompt
-                    }]
-                }],
-                generationConfig: {
-                    temperature: 0.7,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: 1024,
-                }
-            },
+            data: requestData,
             timeout: 10000 // 10 second timeout
         });
 
@@ -113,6 +118,7 @@ app.post('/api/gemini', async (req, res, next) => {
 
             switch (status) {
                 case 400:
+                    console.error('Gemini API returned 400 error with response data:', error.response.data);
                     errorMessage = 'Invalid request format. Please check your input and try again.';
                     break;
                 case 401:
