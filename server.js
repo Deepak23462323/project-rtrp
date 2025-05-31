@@ -1,20 +1,22 @@
-// require('dotenv').config();
+// Load environment variables from .env file
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
-const axios = require('axios');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Set API key directly
-const GEMINI_API_KEY = 'AIzaSyCnHWhK3K5Vm6ppFrXOQadLEfeWvkC5QwY';
+// Get API key from .env file
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Debug logging
 console.log('Current working directory:', process.cwd());
 console.log('API Key Status:', GEMINI_API_KEY ? 'Present' : 'Missing');
 
+// Initialize Google Generative AI
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
 // Initialize express app
 const app = express();
-
-// Constants
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 // Middleware
 app.use(cors());
@@ -67,59 +69,24 @@ app.post('/api/gemini', async (req, res, next) => {
                 maxTokens = 250;
         }
 
-        // Prepare request payload for Gemini API
-        const requestData = {
-            contents: [{
-                parts: [{
-                    text: prompt
-                }]
-            }],
+        // Get the generative model
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+        // Generate content
+        const result = await model.generateContent({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
             generationConfig: {
                 temperature: temperature,
                 maxOutputTokens: maxTokens,
                 topP: 0.5,
                 topK: 20
             }
-        };
-
-        console.log('Sending request to Gemini API with config:', {
-            temperature,
-            maxTokens,
-            responseLength
         });
 
-        // Make request to Gemini API using direct API key
-        const makeRequest = async (retryCount = 0) => {
-            try {
-                const response = await axios({
-                    method: 'post',
-                    url: `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    data: requestData,
-                    timeout: 10000 // 10 second timeout
-                });
-                return response;
-            } catch (error) {
-                if (error.response?.status === 503 && retryCount < 3) {
-                    // Wait for 2 seconds before retrying
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    return makeRequest(retryCount + 1);
-                }
-                throw error;
-            }
-        };
-
-        const response = await makeRequest();
-
-        // Extract only the generated text from the response
-        if (response.data.candidates && response.data.candidates[0]?.content?.parts?.[0]?.text) {
-            const generatedText = response.data.candidates[0].content.parts[0].text;
-            res.json({ response: generatedText });
-        } else {
-            throw new Error('Invalid response format from Gemini API');
-        }
+        const response = await result.response;
+        const text = response.text();
+        
+        res.json({ response: text });
 
     } catch (error) {
         // Log the full error for debugging
@@ -195,5 +162,4 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    console.log('Make sure to create a .env file with your GEMINI_API_KEY');
 }); 
