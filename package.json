@@ -16,5 +16,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
+  },
+  "config": {
+    "GEMINI_API_KEY": "AIzaSyBokCEuexmUKe8mTMtynydS-4i1_YdOQN"
   }
 }

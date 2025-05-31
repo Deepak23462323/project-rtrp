@@ -1,11 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Chat Interface</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Dark theme styles */
+        .dark {
+            background-color: #343541;
+            color: #ECECF1;
+        }
+
+        /* Light theme styles */
+        .light {
+            background-color: #FFFFFF;
+            color: #1F2937;
+        }
+
+        .dark .chat-container {
+            background: linear-gradient(180deg, #343541 0%, #2A2B32 100%);
+        }
+
+        .light .chat-container {
+            background: linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%);
+        }
+
+        .dark .message-bubble {
+            background-color: #444654;
+        }
+
+        .light .message-bubble {
+            background-color: #F9FAFB;
+        }
+
+        .dark .user-message {
+            background-color: #343541;
+        }
+
+        .light .user-message {
+            background-color: #FFFFFF;
+        }
+
+        .dark .assistant-message {
+            background-color: #444654;
+        }
+
+        .light .assistant-message {
+            background-color: #F9FAFB;
+        }
+
+        .dark .sidebar {
+            background-color: #202123;
+            border-color: #4B5563;
+        }
+
+        .light .sidebar {
+            background-color: #F9FAFB;
+            border-color: #E5E7EB;
+        }
+
+        .dark .input-area {
+            background-color: #343541;
+            border-color: #4B5563;
+        }
+
+        .light .input-area {
+            background-color: #FFFFFF;
+            border-color: #E5E7EB;
+        }
+
+        .dark .input-field {
+            background-color: #40414F;
+            border-color: #4B5563;
+            color: #FFFFFF;
+        }
+
+        .light .input-field {
+            background-color: #FFFFFF;
+            border-color: #E5E7EB;
+            color: #1F2937;
+        }
+
         @keyframes dotFade {
             0%, 100% { opacity: 0.2; }
             50% { opacity: 1; }
@@ -13,45 +94,122 @@
         .animate-dot-1 { animation: dotFade 1.5s infinite 0s; }
         .animate-dot-2 { animation: dotFade 1.5s infinite 0.3s; }
         .animate-dot-3 { animation: dotFade 1.5s infinite 0.6s; }
+
+        .message-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .message-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 300ms, transform 300ms;
+        }
+
         .history-panel::-webkit-scrollbar {
             width: 6px;
         }
-        .history-panel::-webkit-scrollbar-track {
-            background: #f1f1f1;
+        .dark .history-panel::-webkit-scrollbar-track {
+            background: #2A2B32;
         }
-        .history-panel::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
+        .light .history-panel::-webkit-scrollbar-track {
+            background: #F3F4F6;
         }
-        .history-panel::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+        .dark .history-panel::-webkit-scrollbar-thumb {
+            background: #565869;
         }
+        .light .history-panel::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+        }
+        .dark .history-panel::-webkit-scrollbar-thumb:hover {
+            background: #6B6C7B;
+        }
+        .light .history-panel::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF;
+        }
+
         .chat-container {
             scrollbar-width: thin;
-            scrollbar-color: #cbd5e1 #f1f1f1;
         }
-        .chat-container::-webkit-scrollbar {
-            width: 6px;
+        .dark .chat-container {
+            scrollbar-color: #565869 #2A2B32;
         }
-        .chat-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
+        .light .chat-container {
+            scrollbar-color: #D1D5DB #F3F4F6;
         }
-        .chat-container::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
+
+        .message-bubble {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .message-bubble:hover {
+            transform: translateY(-1px);
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+        }
+
+        .dark .typing-indicator {
+            background: #2A2B32;
+            color: #ECECF1;
+        }
+
+        .light .typing-indicator {
+            background: #F3F4F6;
+            color: #4B5563;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 50;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .dark .theme-toggle {
+            background-color: #2A2B32;
+            color: #ECECF1;
+        }
+
+        .light .theme-toggle {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
+    <!-- Theme Toggle Button -->
+    <button id="themeToggle" class="theme-toggle">
+        <svg id="sunIcon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg id="moonIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+    </button>
+
     <div class="flex-1 flex">
-        <!-- History Panel - Moved to left side -->
-        <div class="w-80 border-r border-gray-200 bg-white overflow-hidden">
+        <!-- History Panel -->
+        <div class="w-80 border-r sidebar overflow-hidden">
             <div class="h-full flex flex-col">
-                <div class="p-4 border-b border-gray-200 flex items-center">
-                    <h1 class="text-xl font-bold text-gray-800">AI Assistant</h1>
+                <div class="p-4 border-b">
+                    <h1 class="text-xl font-bold">AI Assistant</h1>
                 </div>
-                <div class="p-4 border-b border-gray-200">
-                    <h2 class="text-lg font-semibold text-gray-800">Chat History</h2>
+                <div class="p-4 border-b">
+                    <h2 class="text-lg font-semibold">Chat History</h2>
                 </div>
                 <div id="historyPanel" class="history-panel flex-1 overflow-y-auto p-4 space-y-4">
                     <!-- History items will be added here -->
@@ -61,26 +219,40 @@
 
         <!-- Main Chat Area -->
         <div class="flex-1 flex flex-col h-screen">
-            <!-- Chat Messages Container -->
-            <div id="chatContainer" class="flex-1 overflow-y-auto chat-container p-4 space-y-6">
-                <!-- Messages will be added here -->
+            <!-- Chat Header -->
+            <div class="border-b input-area p-4">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-lg font-semibold">Chat with AI Assistant</h2>
+                    <p class="text-sm opacity-70">Ask me anything!</p>
+                </div>
             </div>
 
-            <!-- Input Area - Fixed at bottom -->
-            <div class="border-t border-gray-200 bg-white p-4">
-                <div class="max-w-4xl mx-auto flex items-end gap-4">
-                    <div class="flex-1 relative">
+            <!-- Chat Messages Container -->
+            <div id="chatContainer" class="flex-1 overflow-y-auto chat-container p-4 space-y-6">
+                <!-- Welcome Message -->
+                <div class="max-w-4xl mx-auto">
+                    <div class="message-bubble rounded-lg p-6 border">
+                        <h3 class="text-lg font-semibold mb-2">👋 Welcome to AI Chat!</h3>
+                        <p class="opacity-70">I'm your AI assistant. Feel free to ask me anything!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="border-t input-area p-4">
+                <div class="max-w-4xl mx-auto">
+                    <div class="relative">
                         <textarea 
                             id="userPrompt" 
-                            class="w-full resize-none rounded-2xl border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-3 pr-12 text-gray-800 placeholder-gray-500"
-                            placeholder="Message AI Assistant..."
+                            class="w-full resize-none rounded-lg input-field focus:ring-2 focus:ring-opacity-50 px-4 py-3 pr-12 transition-all duration-200"
+                            placeholder="Type your message here..."
                             rows="1"
                             style="min-height: 48px; max-height: 200px;"
                             onInput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"
                         ></textarea>
                         <button 
                             id="sendButton"
-                            class="absolute right-3 bottom-2.5 text-blue-600 hover:text-blue-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="absolute right-3 bottom-2.5 opacity-70 hover:opacity-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                             disabled
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -94,6 +266,33 @@
     </div>
 
     <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const html = document.documentElement;
+
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            html.classList.toggle('dark', savedTheme === 'dark');
+            html.classList.toggle('light', savedTheme === 'light');
+            updateThemeIcons();
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            html.classList.toggle('light');
+            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+            updateThemeIcons();
+        });
+
+        function updateThemeIcons() {
+            const isDark = html.classList.contains('dark');
+            sunIcon.classList.toggle('hidden', isDark);
+            moonIcon.classList.toggle('hidden', !isDark);
+        }
+
         // Initialize conversation history array
         let conversationHistory = [];
         const chatContainer = document.getElementById('chatContainer');
@@ -120,28 +319,47 @@
 
         function addMessageToChat(message, isUser = false) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+            messageDiv.className = `max-w-4xl mx-auto message-enter ${isUser ? 'user-message' : 'assistant-message'}`;
             
             const contentDiv = document.createElement('div');
-            contentDiv.className = `max-w-[70%] rounded-lg p-4 ${
-                isUser ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200'
-            }`;
+            contentDiv.className = `message-bubble p-4`;
             
-            contentDiv.textContent = message;
+            // Add avatar for AI messages
+            if (!isUser) {
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'flex items-center gap-3 mb-2';
+                avatarDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-[#19C37D] flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium">AI Assistant</span>
+                `;
+                contentDiv.prepend(avatarDiv);
+            }
+            
+            contentDiv.innerHTML += `<div class="text-sm">${message}</div>`;
             messageDiv.appendChild(contentDiv);
             chatContainer.appendChild(messageDiv);
+            
+            // Trigger animation
+            setTimeout(() => {
+                messageDiv.classList.add('message-enter-active');
+            }, 10);
+            
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
         function addLoadingIndicator() {
             const loadingDiv = document.createElement('div');
             loadingDiv.id = 'loadingIndicator';
-            loadingDiv.className = 'flex items-center space-x-2 p-4';
+            loadingDiv.className = 'max-w-4xl mx-auto';
             loadingDiv.innerHTML = `
-                <div class="flex items-center space-x-1">
-                    <span class="text-2xl text-blue-500 animate-dot-1">•</span>
-                    <span class="text-2xl text-blue-500 animate-dot-2">•</span>
-                    <span class="text-2xl text-blue-500 animate-dot-3">•</span>
+                <div class="typing-indicator">
+                    <span class="text-2xl text-[#19C37D] animate-dot-1">•</span>
+                    <span class="text-2xl text-[#19C37D] animate-dot-2">•</span>
+                    <span class="text-2xl text-[#19C37D] animate-dot-3">•</span>
                 </div>
             `;
             chatContainer.appendChild(loadingDiv);
@@ -209,13 +427,13 @@
         function updateHistoryPanel() {
             const historyPanel = document.getElementById('historyPanel');
             historyPanel.innerHTML = conversationHistory.map((item, index) => `
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer"
+                <div class="message-bubble rounded-lg p-4 border cursor-pointer hover:border-[#19C37D] transition-colors"
                      onclick="restoreChat(${index})">
                     <div class="flex justify-between items-start mb-2">
-                        <p class="text-sm font-medium text-gray-900 truncate flex-1">${item.prompt}</p>
-                        <span class="text-xs text-gray-400 ml-2">${item.timestamp.toLocaleTimeString()}</span>
+                        <p class="text-sm font-medium truncate flex-1">${item.prompt}</p>
+                        <span class="text-xs opacity-70 ml-2">${item.timestamp.toLocaleTimeString()}</span>
                     </div>
-                    <p class="text-sm text-gray-600 truncate">${item.response}</p>
+                    <p class="text-sm opacity-70 truncate">${item.response}</p>
                 </div>
             `).join('');
         }

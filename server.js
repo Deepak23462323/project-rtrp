@@ -1,26 +1,20 @@
-require('dotenv').config();
+// require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 
+// Set API key directly
+const GEMINI_API_KEY = 'AIzaSyCnHWhK3K5Vm6ppFrXOQadLEfeWvkC5QwY';
+
 // Debug logging
 console.log('Current working directory:', process.cwd());
-console.log('Environment variables loaded:', {
-    GEMINI_API_KEY: process.env.GEMINI_API_KEY ? 'Present' : 'Missing',
-    NODE_ENV: process.env.NODE_ENV
-});
+console.log('API Key Status:', GEMINI_API_KEY ? 'Present' : 'Missing');
 
 // Initialize express app
 const app = express();
 
-// Check for required environment variables
-if (!process.env.GEMINI_API_KEY) {
-    console.error('GEMINI_API_KEY is required. Please create a .env file with your API key.');
-    process.exit(1);
-}
-
 // Constants
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 // Middleware
 app.use(cors());
@@ -65,21 +59,15 @@ app.post('/api/gemini', async (req, res, next) => {
                 parts: [{
                     text: prompt
                 }]
-            }],
-            generationConfig: {
-                temperature: 0.7,
-                topK: 40,
-                topP: 0.95,
-                maxOutputTokens: 1024,
-            }
+            }]
         };
 
-        console.log('Sending request to Gemini API:', JSON.stringify(requestData, null, 2));
+        console.log('Sending request to Gemini API');
 
-        // Make request to Gemini API
+        // Make request to Gemini API using direct API key
         const response = await axios({
             method: 'post',
-            url: `${GEMINI_API_URL}?key=${process.env.GEMINI_API_KEY}`,
+            url: `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -106,20 +94,21 @@ app.post('/api/gemini', async (req, res, next) => {
         
         // Handle different types of errors with user-friendly messages
         if (error.code === 'ECONNABORTED') {
-            // Timeout error
             res.status(504).json({
                 error: 'Request timeout',
                 message: 'The AI is taking too long to respond. Please try again.'
             });
         } else if (error.response) {
-            // API responded with an error
             const status = error.response.status;
             let errorMessage = 'Something went wrong. Please try again.';
 
             switch (status) {
                 case 400:
-                    console.error('Gemini API returned 400 error with response data:', error.response.data);
-                    errorMessage = 'Invalid request format. Please check your input and try again.';
+                    if (error.response.data?.error?.message?.includes('API key not valid')) {
+                        errorMessage = 'API key configuration error. Please contact support.';
+                    } else {
+                        errorMessage = 'Invalid request format. Please check your input and try again.';
+                    }
                     break;
                 case 401:
                 case 403:
@@ -140,13 +129,11 @@ app.post('/api/gemini', async (req, res, next) => {
                 message: errorMessage
             });
         } else if (error.request) {
-            // No response received
             res.status(503).json({
                 error: 'Service Unavailable',
                 message: 'Unable to reach the AI service. Please try again in a few moments.'
             });
         } else {
-            // Something else went wrong
             res.status(500).json({
                 error: 'Internal Server Error',
                 message: 'Something went wrong. Please try again.'
