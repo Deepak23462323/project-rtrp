@@ -188,6 +188,214 @@
         .theme-toggle:hover {
             transform: scale(1.05);
         }
+
+        .new-chat-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .dark .new-chat-button {
+            background-color: #2A2B32;
+            color: #ECECF1;
+            border: 1px solid #4B5563;
+        }
+
+        .light .new-chat-button {
+            background-color: #FFFFFF;
+            color: #1F2937;
+            border: 1px solid #E5E7EB;
+        }
+
+        .new-chat-button:hover {
+            background-color: #19C37D;
+            color: white;
+            border-color: #19C37D;
+        }
+
+        .new-chat-button svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .sidebar-section {
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            padding: 0.5rem 1rem;
+            opacity: 0.7;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        .dark .history-item {
+            color: #ECECF1;
+        }
+
+        .light .history-item {
+            color: #1F2937;
+        }
+
+        .history-item:hover {
+            background-color: #19C37D;
+            color: white;
+        }
+
+        .history-item.active {
+            background-color: #19C37D;
+            color: white;
+        }
+
+        .history-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .history-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-item-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-item-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid;
+        }
+
+        .dark .sidebar-footer {
+            border-color: #4B5563;
+        }
+
+        .light .sidebar-footer {
+            border-color: #E5E7EB;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .user-profile:hover {
+            background-color: rgba(25, 195, 125, 0.1);
+        }
+
+        .user-avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.25rem;
+            background-color: #19C37D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-email {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .message-bubble:hover .message-actions {
+            opacity: 1;
+        }
+
+        .message-action-button {
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dark .message-action-button {
+            color: #ECECF1;
+        }
+
+        .light .message-action-button {
+            color: #1F2937;
+        }
+
+        .message-action-button:hover {
+            background-color: rgba(25, 195, 125, 0.1);
+            color: #19C37D;
+        }
+
+        .code-block {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+
+        .dark .code-block {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .light .code-block {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -205,61 +413,66 @@
         <!-- History Panel -->
         <div class="w-80 border-r sidebar overflow-hidden">
             <div class="h-full flex flex-col">
-                <div class="p-4 border-b">
-                    <h1 class="text-xl font-bold">AI Assistant</h1>
+                <div class="p-4">
+                    <button id="newChatButton" class="new-chat-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        New Chat
+                    </button>
                 </div>
-                <div class="p-4 border-b">
-                    <h2 class="text-lg font-semibold">Chat History</h2>
+                <div class="flex-1 overflow-y-auto p-4">
+                    <div id="historyPanel" class="space-y-2">
+                        <!-- History items will be added here -->
                 </div>
-                <div id="historyPanel" class="history-panel flex-1 overflow-y-auto p-4 space-y-4">
-                    <!-- History items will be added here -->
                 </div>
             </div>
         </div>
 
         <!-- Main Chat Area -->
         <div class="flex-1 flex flex-col h-screen">
-            <!-- Chat Header -->
-            <div class="border-b input-area p-4">
-                <div class="max-w-4xl mx-auto">
-                    <h2 class="text-lg font-semibold">Chat with AI Assistant</h2>
-                    <p class="text-sm opacity-70">Ask me anything!</p>
-                </div>
-            </div>
-
             <!-- Chat Messages Container -->
-            <div id="chatContainer" class="flex-1 overflow-y-auto chat-container p-4 space-y-6">
+            <div id="chatContainer" class="flex-1 overflow-y-auto chat-container p-4">
                 <!-- Welcome Message -->
-                <div class="max-w-4xl mx-auto">
-                    <div class="message-bubble rounded-lg p-6 border">
-                        <h3 class="text-lg font-semibold mb-2">👋 Welcome to AI Chat!</h3>
-                        <p class="opacity-70">I'm your AI assistant. Feel free to ask me anything!</p>
+                <div class="welcome-container">
+                    <h1 class="welcome-title">Welcome to AI Chat</h1>
+                    <p class="welcome-subtitle">Your intelligent AI assistant</p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3 class="feature-title">💡 Smart Responses</h3>
+                            <p class="feature-description">Get intelligent and contextually relevant responses to your questions.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3 class="feature-title">🎨 Theme Support</h3>
+                            <p class="feature-description">Choose between light and dark themes for comfortable viewing.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3 class="feature-title">📝 Chat History</h3>
+                            <p class="feature-description">Access your previous conversations and continue where you left off.</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Input Area -->
             <div class="border-t input-area p-4">
-                <div class="max-w-4xl mx-auto">
-                    <div class="relative">
+                <div class="input-container">
                         <textarea 
                             id="userPrompt" 
-                            class="w-full resize-none rounded-lg input-field focus:ring-2 focus:ring-opacity-50 px-4 py-3 pr-12 transition-all duration-200"
-                            placeholder="Type your message here..."
+                        class="input-field"
+                            placeholder="Message AI Assistant..."
                             rows="1"
-                            style="min-height: 48px; max-height: 200px;"
                             onInput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"
                         ></textarea>
                         <button 
                             id="sendButton"
-                            class="absolute right-3 bottom-2.5 opacity-70 hover:opacity-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                        class="send-button"
                             disabled
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                             </svg>
                         </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -271,6 +484,7 @@
         const sunIcon = document.getElementById('sunIcon');
         const moonIcon = document.getElementById('moonIcon');
         const html = document.documentElement;
+        const newChatButton = document.getElementById('newChatButton');
 
         // Check for saved theme preference
         const savedTheme = localStorage.getItem('theme');
@@ -295,6 +509,7 @@
 
         // Initialize conversation history array
         let conversationHistory = [];
+        let currentConversation = null;
         const chatContainer = document.getElementById('chatContainer');
         const userPrompt = document.getElementById('userPrompt');
         const sendButton = document.getElementById('sendButton');
@@ -319,15 +534,15 @@
 
         function addMessageToChat(message, isUser = false) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `max-w-4xl mx-auto message-enter ${isUser ? 'user-message' : 'assistant-message'}`;
+            messageDiv.className = `max-w-4xl mx-auto message-enter ${isUser ? 'user-message' : 'assistant-message'} mb-6`;
             
             const contentDiv = document.createElement('div');
-            contentDiv.className = `message-bubble p-4`;
+            contentDiv.className = `message-bubble p-6 rounded-lg`;
             
             // Add avatar for AI messages
             if (!isUser) {
                 const avatarDiv = document.createElement('div');
-                avatarDiv.className = 'flex items-center gap-3 mb-2';
+                avatarDiv.className = 'flex items-center gap-3 mb-4';
                 avatarDiv.innerHTML = `
                     <div class="w-8 h-8 rounded-full bg-[#19C37D] flex items-center justify-center">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -339,7 +554,7 @@
                 contentDiv.prepend(avatarDiv);
             }
             
-            contentDiv.innerHTML += `<div class="text-sm">${message}</div>`;
+            contentDiv.innerHTML += `<div class="text-sm leading-relaxed">${message}</div>`;
             messageDiv.appendChild(contentDiv);
             chatContainer.appendChild(messageDiv);
             
@@ -354,7 +569,7 @@
         function addLoadingIndicator() {
             const loadingDiv = document.createElement('div');
             loadingDiv.id = 'loadingIndicator';
-            loadingDiv.className = 'max-w-4xl mx-auto';
+            loadingDiv.className = 'max-w-4xl mx-auto mb-6';
             loadingDiv.innerHTML = `
                 <div class="typing-indicator">
                     <span class="text-2xl text-[#19C37D] animate-dot-1">•</span>
@@ -373,15 +588,82 @@
             }
         }
 
+        // New Chat Button Functionality
+        newChatButton.addEventListener('click', () => {
+            // If there's an active conversation, save it to history
+            if (currentConversation && currentConversation.messages.length > 0) {
+                conversationHistory.unshift(currentConversation);
+                updateHistoryPanel();
+            }
+
+            // Clear the chat container and add welcome screen
+            chatContainer.innerHTML = `
+                <div class="welcome-container">
+                    <h1 class="welcome-title">Welcome to AI Chat</h1>
+                    <p class="welcome-subtitle">Your intelligent AI assistant</p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3 class="feature-title">💡 Smart Responses</h3>
+                            <p class="feature-description">Get intelligent and contextually relevant responses to your questions.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3 class="feature-title">🎨 Theme Support</h3>
+                            <p class="feature-description">Choose between light and dark themes for comfortable viewing.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3 class="feature-title">📝 Chat History</h3>
+                            <p class="feature-description">Access your previous conversations and continue where you left off.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Clear the input field
+            userPrompt.value = '';
+            userPrompt.style.height = '56px';
+            sendButton.disabled = true;
+            
+            // Start new conversation
+            currentConversation = {
+                id: Date.now().toString(),
+                messages: [],
+                timestamp: new Date()
+            };
+            
+            // Scroll to top
+            chatContainer.scrollTop = 0;
+        });
+
         sendButton.addEventListener('click', async () => {
             const prompt = userPrompt.value.trim();
             if (!prompt) return;
 
+            // Remove welcome message if it exists
+            const welcomeContainer = chatContainer.querySelector('.welcome-container');
+            if (welcomeContainer) {
+                welcomeContainer.remove();
+            }
+
+            // Initialize new conversation if none exists
+            if (!currentConversation) {
+                currentConversation = {
+                    id: Date.now().toString(),
+                    messages: [],
+                    timestamp: new Date()
+                };
+            }
+
             // Add user message to chat
             addMessageToChat(prompt, true);
             userPrompt.value = '';
-            userPrompt.style.height = '48px';
+            userPrompt.style.height = '56px';
             sendButton.disabled = true;
+
+            // Add message to current conversation
+            currentConversation.messages.push({
+                role: 'user',
+                content: prompt
+            });
 
             // Show loading indicator
             addLoadingIndicator();
@@ -402,8 +684,11 @@
                     // Add AI response to chat
                     addMessageToChat(data.response);
                     
-                    // Add to history
-                    addToHistory(prompt, data.response);
+                    // Add message to current conversation
+                    currentConversation.messages.push({
+                        role: 'assistant',
+                        content: data.response
+                    });
                 } else {
                     // Add error message to chat
                     addMessageToChat(`Error: ${data.message || 'Something went wrong. Please try again.'}`);
@@ -414,35 +699,37 @@
             }
         });
 
-        function addToHistory(prompt, response) {
-            const historyItem = {
-                prompt,
-                response,
-                timestamp: new Date()
-            };
-            conversationHistory.unshift(historyItem);
-            updateHistoryPanel();
-        }
-
         function updateHistoryPanel() {
             const historyPanel = document.getElementById('historyPanel');
-            historyPanel.innerHTML = conversationHistory.map((item, index) => `
-                <div class="message-bubble rounded-lg p-4 border cursor-pointer hover:border-[#19C37D] transition-colors"
-                     onclick="restoreChat(${index})">
-                    <div class="flex justify-between items-start mb-2">
-                        <p class="text-sm font-medium truncate flex-1">${item.prompt}</p>
-                        <span class="text-xs opacity-70 ml-2">${item.timestamp.toLocaleTimeString()}</span>
+            historyPanel.innerHTML = conversationHistory.map((conversation, index) => `
+                <div class="history-item" onclick="restoreChat(${index})">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    <div class="history-item-content">
+                        <div class="history-item-title">${conversation.messages[0].content}</div>
+                        <div class="history-item-time">${conversation.timestamp.toLocaleTimeString()}</div>
                     </div>
-                    <p class="text-sm opacity-70 truncate">${item.response}</p>
                 </div>
             `).join('');
         }
 
         function restoreChat(index) {
-            const item = conversationHistory[index];
-            userPrompt.value = item.prompt;
+            const conversation = conversationHistory[index];
+            
+            // Clear current chat
+            chatContainer.innerHTML = '';
+            
+            // Add all messages from the conversation
+            conversation.messages.forEach(message => {
+                addMessageToChat(message.content, message.role === 'user');
+            });
+            
+            // Set as current conversation
+            currentConversation = conversation;
+            
+            // Focus input
             userPrompt.focus();
-            sendButton.disabled = false;
         }
     </script>
 </body>
